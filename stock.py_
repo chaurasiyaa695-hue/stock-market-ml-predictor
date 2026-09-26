@@ -1,0 +1,59 @@
+ import streamlit as st
+import pandas as pd
+import joblib
+
+model = joblib.load("stock_direction_model.pkl")
+features = joblib.load("features.pkl")
+
+st.set_page_config(
+    page_title="Stock Direction Predictor",
+    page_icon="📈"
+)
+
+st.title("📈 Stock Market Direction Predictor")
+
+st.write(
+    "Predict whether the next trading day's stock price "
+    "may move UP or DOWN."
+)
+
+st.divider()
+
+st.subheader("Enter Stock Information")
+
+open_price = st.number_input("Open Price", min_value=0.0, value=1400.0)
+high_price = st.number_input("High Price", min_value=0.0, value=1420.0)
+low_price = st.number_input("Low Price", min_value=0.0, value=1380.0)
+close_price = st.number_input("Close Price", min_value=0.0, value=1405.0)
+volume = st.number_input("Volume", min_value=0, value=1000000)
+
+daily_return = st.number_input("Daily Return", value=0.0)
+ma_5 = st.number_input("5-Day Moving Average", min_value=0.0, value=1400.0)
+ma_20 = st.number_input("20-Day Moving Average", min_value=0.0, value=1380.0)
+
+if st.button("🔮 Predict Direction"):
+
+    input_data = pd.DataFrame({
+        "Open": [open_price],
+        "High": [high_price],
+        "Low": [low_price],
+        "Close": [close_price],
+        "Volume": [volume],
+        "Daily_Return": [daily_return],
+        "MA_5": [ma_5],
+        "MA_20": [ma_20]
+    })
+
+    input_data = input_data[features]
+
+    prediction = model.predict(input_data)[0]
+
+    if prediction == 1:
+        st.success("📈 Predicted Direction: UP")
+    else:
+        st.error("📉 Predicted Direction: DOWN")
+
+    st.info(
+        "This is an educational prediction and should not "
+        "be treated as financial advice."
+    )
